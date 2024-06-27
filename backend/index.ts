@@ -4,6 +4,8 @@ const prisma = new PrismaClient();
 
 const app = express();
 
+app.use(express.json()); // for parsing application/json
+
 app.get("/", (req, res) => {
   res.send("Hello World from typescript!");
 });
@@ -12,7 +14,7 @@ app.post("/user/signup", async (req, res) => {
   const { name, email, password } = req.body;
   await prisma.user.create({
     data: {
-      id: Math.floor(Math.random() * 1000),
+      id: Math.floor(Math.random() * 1000).toString(),
       name,
       email,
       password,
