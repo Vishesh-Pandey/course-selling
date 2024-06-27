@@ -1,27 +1,11 @@
-const express = require("express");
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+import express from "express";
+import { router } from "./routes";
 
 const app = express();
 
 app.use(express.json()); // for parsing application/json
 
-app.get("/", (req, res) => {
-  res.send("Hello World from typescript!");
-});
-
-app.post("/user/signup", async (req, res) => {
-  const { name, email, password } = req.body;
-  await prisma.user.create({
-    data: {
-      id: Math.floor(Math.random() * 1000).toString(),
-      name,
-      email,
-      password,
-    },
-  });
-  res.send("User signed up successfully!");
-});
+app.use("/", router);
 
 app.listen(8000, () => {
   console.log("Server is running on port 8000");
