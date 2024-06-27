@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = "postgresql://anjelikacodeyoung:fkdJZRVq1St2@ep-red-wind-a5v5kba8.us-east-2.aws.neon.tech/ecommercedb?sslmode=require"
 }
 
 
@@ -41,6 +41,7 @@ model Course {
 model Lesson {
   id        String   @id @default(cuid())
   title     String
+  description String
   content   String
   courseId  String
   course    Course   @relation(fields: [courseId], references: [id])
