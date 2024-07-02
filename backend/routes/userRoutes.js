@@ -15,17 +15,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.userRouter = void 0;
 const express_1 = __importDefault(require("express"));
 const client_1 = require("@prisma/client");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
 const prisma = new client_1.PrismaClient();
 const router = express_1.default.Router();
 exports.userRouter = router;
 router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, email, password } = req.body;
+    // hash the password
+    const salt = yield bcrypt_1.default.genSalt(12);
+    const hashedPassword = yield bcrypt_1.default.hash(password, salt);
     yield prisma.user.create({
         data: {
-            name,
-            email,
-            password,
+            name: name,
+            email: email,
+            password: hashedPassword,
         },
     });
-    res.send("User signed up successfully!");
+    // create token
+    const token = jsonwebtoken_1.default.sign(email, "secretkey");
+    return res.send({
+        message: "User created successfully",
+        token: token,
+    });
 }));
