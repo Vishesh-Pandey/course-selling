@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://anjelikacodeyoung:fkdJZRVq1St2@ep-red-wind-a5v5kba8.us-east-2.aws.neon.tech/ecommercedb?sslmode=require"
+  url      = "postgresql://neondb_owner:EwUs23LfzxyK@ep-bold-sun-a5lx1y0i.us-east-2.aws.neon.tech/neondb?sslmode=require"
 }
 
 
@@ -22,7 +22,7 @@ model User {
 }
 
 model Instructor {
-  id        String   @id @default(cuid())
+  id        String   @id @default(cuid())a
   name      String
   email     String   @unique
   password  String
