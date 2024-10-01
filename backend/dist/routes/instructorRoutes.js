@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.instructorRouter = void 0;
 const express_1 = __importDefault(require("express"));
 const client_1 = require("@prisma/client");
+const { response } = require("express");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const prisma = new client_1.PrismaClient();
@@ -25,7 +26,7 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
     // hash the password
     const salt = yield bcrypt_1.default.genSalt(12);
     const hashedPassword = yield bcrypt_1.default.hash(password, salt);
-    yield prisma.user.create({
+    yield prisma.instructor.create({
         data: {
             name: name,
             email: email,
@@ -35,25 +36,25 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
     // create token
     const token = jsonwebtoken_1.default.sign(email, "secretkey");
     return res.send({
-        message: "User created successfully",
+        message: "Instructor created successfully",
         token: token,
     });
 }));
 router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
-    // check if user exists
-    const user = yield prisma.user.findUnique({
+    // check if instructor exists
+    const instructor = yield prisma.instructor.findUnique({
         where: {
             email: email,
         },
     });
-    if (!user) {
+    if (!instructor) {
         return res.status(400).send({
             message: "Invalid email or password",
         });
     }
     // check if password is correct
-    const validPassword = yield bcrypt_1.default.compare(password, user.password);
+    const validPassword = yield bcrypt_1.default.compare(password, instructor.password);
     if (!validPassword) {
         return res.status(400).send({
             message: "Invalid email or password",
@@ -66,3 +67,30 @@ router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         token: token,
     });
 }));
+router.post("/createCourse", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { title, description,instructorId } = req.body;
+    try {
+        yield prisma.course.create({
+            data: {
+                title: title,
+                description: description,
+                instructorId: instructorId,
+            }
+        });
+        return res.send({
+            message: "Course created successfully",
+        });
+    } catch (error) {
+        console.log(error);
+        return res.send({
+            message: "Internal server error",
+        });
+        
+    }
+    
+
+
+
+    // check if password is correct
+
+};

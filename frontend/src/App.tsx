@@ -1,8 +1,13 @@
 import { useState } from 'react'
 import './App.css'
-import InstructorSignup from './comps/InstructorSignup'
-import { Link } from 'react-router-dom'
 import { Route, Routes } from 'react-router-dom'
+import InstructorSignup from './comps/InstructorSignup'
+import UserSignup from './comps/UserSignup'
+import InstructorLogin from './comps/InstructorLogin'
+import UserLogin from './comps/UserLogin'
+import InstructorDashboard from './comps/InstructorDashboard'
+import UserDashboard from './comps/UserDashboard'
+import Landing from './comps/Landing'
 
 function App() {
   const [] = useState(0)
@@ -10,17 +15,16 @@ function App() {
   return (
     <>
     <Routes>
-      <Route path='/instructor' element={<InstructorSignup />} />
+      <Route path='/instructor-signup' element={<InstructorSignup />} />
+      <Route path='/user-signup' element={<UserSignup />} />
+      <Route path='/instructor-login' element={<InstructorLogin />} />
+      <Route path='/user-login' element={<UserLogin />} />
+      <Route path='/instructor-dashboard' element={<InstructorDashboard />} />
+      <Route path='/user-dashboard' element={<UserDashboard />} />
+      <Route path='/' element={<Landing />} /> 
     </Routes>
-      <div>
-        <Link to="/user">
-          <button>user</button>
-        </Link>
-        <Link to="/instructor">
-          <button>instructor</button>
-        </Link> 
-        
-      </div>
+
+      
     
     </>
   )
