@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.instructorRouter = void 0;
 const express_1 = __importDefault(require("express"));
 const client_1 = require("@prisma/client");
-const { response } = require("express");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const prisma = new client_1.PrismaClient();
@@ -36,25 +35,25 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
     // create token
     const token = jsonwebtoken_1.default.sign(email, "secretkey");
     return res.send({
-        message: "Instructor created successfully",
+        message: "User created successfully",
         token: token,
     });
 }));
 router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
-    // check if instructor exists
-    const instructor = yield prisma.instructor.findUnique({
+    // check if user exists
+    const user = yield prisma.user.findUnique({
         where: {
             email: email,
         },
     });
-    if (!instructor) {
+    if (!user) {
         return res.status(400).send({
             message: "Invalid email or password",
         });
     }
     // check if password is correct
-    const validPassword = yield bcrypt_1.default.compare(password, instructor.password);
+    const validPassword = yield bcrypt_1.default.compare(password, user.password);
     if (!validPassword) {
         return res.status(400).send({
             message: "Invalid email or password",
@@ -68,7 +67,10 @@ router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* 
     });
 }));
 router.post("/createCourse", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { title, description,instructorId } = req.body;
+    const { title, description, instructorId } = req.body;
+    console.log('title', title);
+    console.log('description', description);
+    console.log('instructorId', instructorId);
     try {
         yield prisma.course.create({
             data: {
@@ -80,17 +82,12 @@ router.post("/createCourse", (req, res) => __awaiter(void 0, void 0, void 0, fun
         return res.send({
             message: "Course created successfully",
         });
-    } catch (error) {
+    }
+    catch (error) {
         console.log(error);
         return res.send({
             message: "Internal server error",
         });
-        
     }
-    
-
-
-
     // check if password is correct
-
-};
+}));

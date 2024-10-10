@@ -15,7 +15,7 @@ router.post("/signup", async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  await prisma.user.create({
+  await prisma.instructor.create({
     data: {
       name: name,
       email: email,
@@ -67,6 +67,36 @@ router.post("/login", async (req, res) => {
     message: "Login successful",
     token: token,
   });
+});
+router.post("/createCourse", async (req, res) => {
+  const { title, description,instructorId } = req.body;
+  console.log('title', title);
+  console.log('description', description);
+  console.log('instructorId', instructorId);
+  try {
+        prisma.course.create({
+          data: {
+              title: title,
+              description: description,
+              instructorId: instructorId,
+          }
+      });
+      return res.send({
+          message: "Course created successfully",
+      });
+  } catch (error) {
+      console.log(error);
+      return res.send({
+          message: "Internal server error",
+      });
+      
+  }
+  
+
+
+
+  // check if password is correct
+
 });
 
 export { router as instructorRouter };
