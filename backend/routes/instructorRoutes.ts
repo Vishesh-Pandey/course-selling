@@ -7,6 +7,12 @@ const prisma = new PrismaClient();
 
 const router = express.Router();
 
+router.get("/", async (req, res) => {
+  res.json({
+    msg: "working",
+  });
+});
+
 router.post("/signup", async (req, res) => {
   const { name, email, password } = req.body;
   // hash the password
@@ -68,35 +74,36 @@ router.post("/login", async (req, res) => {
     token: token,
   });
 });
+
 router.post("/createCourse", async (req, res) => {
-  const { title, description,instructorId } = req.body;
-  console.log('title', title);
-  console.log('description', description);
-  console.log('instructorId', instructorId);
+  const { title, description, instructorId } = req.body;
+  console.log("title", title);
+  console.log("description", description);
+  console.log("instructorId", instructorId);
   try {
-        prisma.course.create({
-          data: {
-              title: title,
-              description: description,
-              instructorId: instructorId,
-          }
-      });
-      return res.send({
-          message: "Course created successfully",
-      });
+    await prisma.course.create({
+      data: {
+        title: title,
+        description: description,
+        instructorId: instructorId,
+      },
+    });
+    return res.send({
+      message: "Course created successfully",
+    });
   } catch (error) {
-      console.log(error);
-      return res.send({
-          message: "Internal server error",
-      });
-      
+    console.log(error);
+    return res.send({
+      message: "Internal server error",
+    });
   }
-  
-
-
 
   // check if password is correct
+});
 
+router.get("/courses", async (req, res) => {
+  const courses = await prisma.course.findMany();
+  return res.send(courses);
 });
 
 export { router as instructorRouter };

@@ -20,6 +20,11 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const prisma = new client_1.PrismaClient();
 const router = express_1.default.Router();
 exports.instructorRouter = router;
+router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    res.json({
+        msg: "working",
+    });
+}));
 router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, email, password } = req.body;
     // hash the password
@@ -68,16 +73,16 @@ router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* 
 }));
 router.post("/createCourse", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { title, description, instructorId } = req.body;
-    console.log('title', title);
-    console.log('description', description);
-    console.log('instructorId', instructorId);
+    console.log("title", title);
+    console.log("description", description);
+    console.log("instructorId", instructorId);
     try {
         yield prisma.course.create({
             data: {
                 title: title,
                 description: description,
                 instructorId: instructorId,
-            }
+            },
         });
         return res.send({
             message: "Course created successfully",
@@ -90,4 +95,8 @@ router.post("/createCourse", (req, res) => __awaiter(void 0, void 0, void 0, fun
         });
     }
     // check if password is correct
+}));
+router.get("/courses", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const courses = yield prisma.course.findMany();
+    return res.send(courses);
 }));
