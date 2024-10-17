@@ -2,6 +2,7 @@ import express from "express";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { varifyUser } from "./middleware";
 
 const prisma = new PrismaClient();
 
@@ -14,68 +15,101 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/signup", async (req, res) => {
-  const { name, email, password } = req.body;
-  // hash the password
+  try {
+    const { name, email, password } = req.body;
+    const salt = await bcrypt.genSalt(12);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-  const salt = await bcrypt.genSalt(12);
+    await prisma.instructor.create({
+      data: {
+        name: name,
+        email: email,
+        password: hashedPassword,
+      },
+    });
 
-  const hashedPassword = await bcrypt.hash(password, salt);
+    // fetch user id from the database
 
-  await prisma.instructor.create({
-    data: {
-      name: name,
-      email: email,
-      password: hashedPassword,
-    },
-  });
+    const user = await prisma.instructor.findUnique({
+      where: {
+        email: email,
+      },
+    });
 
-  // create token
+    // create token
 
-  const token = jwt.sign(email, "secretkey");
-
-  return res.send({
-    message: "User created successfully",
-    token: token,
-  });
+    if (user !== null) {
+      const token = jwt.sign({ email, id: user.id }, "secretkey");
+      return res.send({
+        message: "User created successfully",
+        token: token,
+      });
+    } else {
+      return res.status(500).send({
+        message: "Something went wrong",
+      });
+    }
+  } catch (error) {
+    return res.json({
+      msg: "Something went wrong",
+      error: error,
+    });
+  }
 });
 
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
+    // check if user exists
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
 
-  // check if user exists
-  const user = await prisma.user.findUnique({
-    where: {
-      email: email,
-    },
-  });
+    if (!user) {
+      return res.status(400).send({
+        message: "Invalid email or password",
+      });
+    }
 
-  if (!user) {
-    return res.status(400).send({
-      message: "Invalid email or password",
+    // check if password is correct
+
+    const validPassword = await bcrypt.compare(password, user.password);
+
+    if (!validPassword) {
+      return res.status(400).send({
+        message: "Invalid email or password",
+      });
+    }
+
+    // create token
+    if (user !== null) {
+      const token = jwt.sign({ email: email, id: user.id }, "secret_signature");
+
+      return res.send({
+        message: "Login successful",
+        token: token,
+      });
+    } else {
+      return res.send({
+        msg: "something went wrong ",
+        error: "user does not exist",
+      });
+    }
+  } catch (error) {
+    return res.send({
+      message: "Something went wrong",
+      error: error,
     });
   }
-
-  // check if password is correct
-
-  const validPassword = await bcrypt.compare(password, user.password);
-
-  if (!validPassword) {
-    return res.status(400).send({
-      message: "Invalid email or password",
-    });
-  }
-
-  // create token
-
-  const token = jwt.sign(email, "secret_signature");
-
-  return res.send({
-    message: "Login successful",
-    token: token,
-  });
 });
 
 router.post("/createCourse", async (req, res) => {
+  varifyUser(req, res, () => {
+    console.log("User varified");
+  });
+
   const { title, description, instructorId } = req.body;
   console.log("title", title);
   console.log("description", description);

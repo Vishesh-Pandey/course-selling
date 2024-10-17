@@ -17,6 +17,7 @@ const express_1 = __importDefault(require("express"));
 const client_1 = require("@prisma/client");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const middleware_1 = require("./middleware");
 const prisma = new client_1.PrismaClient();
 const router = express_1.default.Router();
 exports.instructorRouter = router;
@@ -26,52 +27,91 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     });
 }));
 router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { name, email, password } = req.body;
-    // hash the password
-    const salt = yield bcrypt_1.default.genSalt(12);
-    const hashedPassword = yield bcrypt_1.default.hash(password, salt);
-    yield prisma.instructor.create({
-        data: {
-            name: name,
-            email: email,
-            password: hashedPassword,
-        },
-    });
-    // create token
-    const token = jsonwebtoken_1.default.sign(email, "secretkey");
-    return res.send({
-        message: "User created successfully",
-        token: token,
-    });
+    try {
+        const { name, email, password } = req.body;
+        const salt = yield bcrypt_1.default.genSalt(12);
+        const hashedPassword = yield bcrypt_1.default.hash(password, salt);
+        yield prisma.instructor.create({
+            data: {
+                name: name,
+                email: email,
+                password: hashedPassword,
+            },
+        });
+        // fetch user id from the database
+        const user = yield prisma.instructor.findUnique({
+            where: {
+                email: email,
+            },
+        });
+        // create token
+        if (user !== null) {
+            const token = jsonwebtoken_1.default.sign({ email, id: user.id }, "secretkey");
+            return res.send({
+                message: "User created successfully",
+                token: token,
+            });
+        }
+        else {
+            return res.status(500).send({
+                message: "Something went wrong",
+            });
+        }
+    }
+    catch (error) {
+        return res.json({
+            msg: "Something went wrong",
+            error: error,
+        });
+    }
 }));
 router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { email, password } = req.body;
-    // check if user exists
-    const user = yield prisma.user.findUnique({
-        where: {
-            email: email,
-        },
-    });
-    if (!user) {
-        return res.status(400).send({
-            message: "Invalid email or password",
+    try {
+        const { email, password } = req.body;
+        // check if user exists
+        const user = yield prisma.user.findUnique({
+            where: {
+                email: email,
+            },
+        });
+        if (!user) {
+            return res.status(400).send({
+                message: "Invalid email or password",
+            });
+        }
+        // check if password is correct
+        const validPassword = yield bcrypt_1.default.compare(password, user.password);
+        if (!validPassword) {
+            return res.status(400).send({
+                message: "Invalid email or password",
+            });
+        }
+        // create token
+        if (user !== null) {
+            const token = jsonwebtoken_1.default.sign({ email: email, id: user.id }, "secret_signature");
+            return res.send({
+                message: "Login successful",
+                token: token,
+            });
+        }
+        else {
+            return res.send({
+                msg: "something went wrong ",
+                error: "user does not exist",
+            });
+        }
+    }
+    catch (error) {
+        return res.send({
+            message: "Something went wrong",
+            error: error,
         });
     }
-    // check if password is correct
-    const validPassword = yield bcrypt_1.default.compare(password, user.password);
-    if (!validPassword) {
-        return res.status(400).send({
-            message: "Invalid email or password",
-        });
-    }
-    // create token
-    const token = jsonwebtoken_1.default.sign(email, "secret_signature");
-    return res.send({
-        message: "Login successful",
-        token: token,
-    });
 }));
 router.post("/createCourse", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, middleware_1.varifyUser)(req, res, () => {
+        console.log("User varified");
+    });
     const { title, description, instructorId } = req.body;
     console.log("title", title);
     console.log("description", description);

@@ -12,6 +12,10 @@ app.use((0, cors_1.default)({
     methods: ["GET", "POST", "PUT", "DELETE"],
 })); // for parsing application/json
 app.use(express_1.default.json()); // for parsing application/json
+app.use((req, res, next) => {
+    console.log("Time:", Date.now());
+    next();
+});
 app.use("/", routes_1.router);
 app.listen(8000, () => {
     console.log("Server is running on port 8000");
