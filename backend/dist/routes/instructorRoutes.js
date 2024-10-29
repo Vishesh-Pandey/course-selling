@@ -137,6 +137,8 @@ router.post("/createCourse", (req, res) => __awaiter(void 0, void 0, void 0, fun
     // check if password is correct
 }));
 router.get("/courses", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const courses = yield prisma.course.findMany();
+    const courses = yield prisma.course.findMany({ where: {
+            id: req.id,
+        } });
     return res.send(courses);
 }));

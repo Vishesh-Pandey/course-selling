@@ -45,8 +45,8 @@ export default function  UserSignup() {
         <Link to="/instructor-login">
           <button>instructor Login</button>
         </Link>
-        <Link to="/user-login">
-          <button>user Login</button>
+        <Link to="/instructor-login">
+          <button>instructo r Login</button>
         </Link>
       </div>
     </div>

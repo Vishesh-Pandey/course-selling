@@ -5,8 +5,6 @@ function Landing() {
   return (
     <div>
       <h1>Welcome</h1>
-      <p>Are you?</p>
-
       <Link to="/user-signup">
         <button>user</button>
       </Link>

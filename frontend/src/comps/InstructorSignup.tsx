@@ -39,11 +39,17 @@ export default function InstructorSignup() {
       </form>
       
       <div>
-        <Link to="/user-signup">
+      <Link to="/user-signup">
           <button>user</button>
         </Link>
         <Link to="/">
           <button>Landing</button>
+        </Link>
+        <Link to="/instructor-login">
+          <button>instructor Login</button>
+        </Link>
+        <Link to="/user-login">
+          <button>user Login</button>
         </Link>
       </div>
     </div>

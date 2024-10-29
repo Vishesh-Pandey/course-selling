@@ -27,7 +27,7 @@ export default function InstructorSignup() {
     }
   return (
     <div>
-      <h1>Instructor Login</h1>
+      <h1>User Login</h1>
       <form onSubmit={handleLogin}>
         <label htmlFor="email">Email:</label>
         <input type="email" id="email" name="email" />
@@ -37,12 +37,21 @@ export default function InstructorSignup() {
       </form>
       
       <div>
+        <Link to="/instructor-signup">
+          <button>instructor</button>
+        </Link>
+
         <Link to="/user-signup">
           <button>user</button>
         </Link>
         <Link to="/">
           <button>Landing</button>
         </Link>
+
+        <Link to="/instructor-login">
+          <button>instructor Login</button>
+        </Link>
+
       </div>
     </div>
   )

@@ -135,8 +135,10 @@ router.post("/createCourse", async (req, res) => {
   // check if password is correct
 });
 
-router.get("/courses", async (req, res) => {
-  const courses = await prisma.course.findMany();
+router.get("/courses", async (req: any, res) => {
+  const courses = await prisma.course.findMany({where: {
+    id: req.id,
+  }});
   return res.send(courses);
 });
 

@@ -13,7 +13,7 @@ const varifyUser = (req, res, next) => {
     jsonwebtoken_1.default.verify(token, "secret_signature", (err, user) => {
         if (err)
             return res.sendStatus(403);
-        req.user = user;
+        req.id = user.id;
         next();
     });
 };
