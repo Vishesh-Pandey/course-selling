@@ -1,30 +1,50 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from "react-router-dom";
+
+type BodyData = {
+  name: string;
+  email: string;
+  password: string;
+};
+
 export default function InstructorSignup() {
-    function handleSignup(event: React.FormEvent<HTMLFormElement>) {
-      console.log('inside handleSignup')
-      event.preventDefault()
-      let bodyData = {
+  const navigate = useNavigate();
+
+  async function handleSignup(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    console.log("inside handleSignup");
+
+    try {
+      const bodyData: BodyData = {
         name: event.currentTarget.name.value,
         email: event.currentTarget.email.value,
         password: event.currentTarget.password.value,
-      }
-      console.log('bodyData', bodyData)
-      fetch('http://localhost:8000/instructor/signup', {
-        
-        method: 'POST',
+      };
+
+      console.log("bodyData", bodyData);
+
+      const response = await fetch("http://localhost:8000/instructor/signup", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(bodyData),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data)
-        })
-        .catch((error) => {
-          console.error(error)
-        })
+      });
+
+      if (response.status !== 200) {
+        alert("Something went wrong");
+        return;
+      }
+
+      const data = await response.json();
+
+      localStorage.setItem("token", data.token);
+
+      navigate("/instructor-dashboard");
+    } catch (error) {
+      alert("Something went wrong ");
+      console.log(error);
     }
+  }
   return (
     <div>
       <h1>Instructor Signup</h1>
@@ -37,9 +57,9 @@ export default function InstructorSignup() {
         <input type="password" id="password" name="password" />
         <button type="submit">Sign Up</button>
       </form>
-      
+
       <div>
-      <Link to="/user-signup">
+        <Link to="/user-signup">
           <button>user</button>
         </Link>
         <Link to="/">
@@ -53,5 +73,5 @@ export default function InstructorSignup() {
         </Link>
       </div>
     </div>
-  )
+  );
 }

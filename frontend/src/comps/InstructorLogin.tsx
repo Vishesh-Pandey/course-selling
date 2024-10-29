@@ -18,7 +18,12 @@ export default function InstructorSignup() {
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
-        navigate("/instructor-dashboard");
+        if ( data.message === "Invalid email or password"){
+          alert("Invalid password")
+        }
+        else {
+          navigate("/instructor-dashboard");
+        }
       })
       .catch((error) => {
         console.error(error);
