@@ -53,16 +53,6 @@ function Dashboard() {
   return (
     <>
       <div>Dashboard</div>
-      <h1>Your Courses</h1>
-      {courses.map((course) => {
-        return (
-          <div style={{ border: "solid", borderColor: "white" }}>
-            <h3>{course.title}</h3>
-            <p>{course.description}</p>
-          </div>
-        );
-      })}
-
       <div>
         <h1>Create Course </h1>
         <form onSubmit={handleCourse}>
@@ -87,6 +77,23 @@ function Dashboard() {
           <br />
           <button type="submit">Create Course</button>
         </form>
+      </div>
+      <h1>Your Courses</h1>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div>
+          <h1>Your Courses </h1>
+        </div>
+        <div>
+          <h1>Courses by other instructors </h1>
+          {courses.map((course) => {
+            return (
+              <div style={{ border: "solid", borderColor: "white" }}>
+                <h3>{course.title}</h3>
+                <p>{course.description}</p>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </>
   );

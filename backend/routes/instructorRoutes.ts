@@ -39,7 +39,7 @@ router.post("/signup", async (req, res) => {
     // create token
 
     if (user !== null) {
-      const token = jwt.sign({ email, id: user.id }, "secretkey");
+      const token = jwt.sign({ email, id: user.id }, "secret_signature");
       return res.send({
         message: "User created successfully",
         token: token,
@@ -136,9 +136,21 @@ router.post("/createCourse", async (req, res) => {
 });
 
 router.get("/courses", async (req: any, res) => {
-  const courses = await prisma.course.findMany({where: {
-    id: req.id,
-  }});
+  const courses = await prisma.course.findMany({
+    where: {
+      id: req.id,
+    },
+  });
+  return res.send(courses);
+});
+
+router.get("/your-courses", varifyUser, async (req: any, res) => {
+  console.log("instructor id is : ", req.id);
+  const courses = await prisma.course.findMany({
+    where: {
+      instructorId: req.id,
+    },
+  });
   return res.send(courses);
 });
 
