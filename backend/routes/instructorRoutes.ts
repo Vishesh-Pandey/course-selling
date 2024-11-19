@@ -60,12 +60,15 @@ router.post("/signup", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log("Given email and password :", { email, password });
     // check if user exists
-    const user = await prisma.user.findUnique({
+    const user = await prisma.instructor.findUnique({
       where: {
         email: email,
       },
     });
+
+    console.log("User detected : ", user);
 
     if (!user) {
       return res.status(400).send({
