@@ -22,6 +22,8 @@ export default function InstructorSignup() {
           alert("Invalid password")
         }
         else {
+          console.log(data);
+          localStorage.setItem("token", data.token);
           navigate("/instructor-dashboard");
         }
       })

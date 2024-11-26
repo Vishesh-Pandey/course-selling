@@ -46,7 +46,7 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
         });
         // create token
         if (user !== null) {
-            const token = jsonwebtoken_1.default.sign({ email, id: user.id }, "secretkey");
+            const token = jsonwebtoken_1.default.sign({ email, id: user.id }, "secret_signature");
             return res.send({
                 message: "User created successfully",
                 token: token,
@@ -68,12 +68,14 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
 router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, password } = req.body;
+        console.log("Given email and password :", { email, password });
         // check if user exists
-        const user = yield prisma.user.findUnique({
+        const user = yield prisma.instructor.findUnique({
             where: {
                 email: email,
             },
         });
+        console.log("User detected : ", user);
         if (!user) {
             return res.status(400).send({
                 message: "Invalid email or password",
@@ -108,20 +110,20 @@ router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         });
     }
 }));
-router.post("/createCourse", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    (0, middleware_1.varifyUser)(req, res, () => {
-        console.log("User varified");
-    });
-    const { title, description, instructorId } = req.body;
+router.post("/createCourse", middleware_1.verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // verifyUser(req, res, () => {
+    //   console.log("User varified");
+    // });
+    const { title, description } = req.body;
     console.log("title", title);
     console.log("description", description);
-    console.log("instructorId", instructorId);
+    console.log("instructor id is : ", req.id);
     try {
         yield prisma.course.create({
             data: {
                 title: title,
                 description: description,
-                instructorId: instructorId,
+                instructorId: req.id
             },
         });
         return res.send({
@@ -137,8 +139,19 @@ router.post("/createCourse", (req, res) => __awaiter(void 0, void 0, void 0, fun
     // check if password is correct
 }));
 router.get("/courses", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const courses = yield prisma.course.findMany({ where: {
+    const courses = yield prisma.course.findMany({
+        where: {
             id: req.id,
-        } });
+        },
+    });
+    return res.send(courses);
+}));
+router.get("/your-courses", middleware_1.verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("instructor id is : ", req.id);
+    const courses = yield prisma.course.findMany({
+        where: {
+            instructorId: req.id,
+        },
+    });
     return res.send(courses);
 }));

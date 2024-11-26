@@ -34,9 +34,9 @@ function Dashboard() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
       body: JSON.stringify({
-        instructorId: "cm2anejub0000msa29ibhahtj",
         title: title,
         description: description,
       }),

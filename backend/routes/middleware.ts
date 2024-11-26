@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import express from "express";
 
-export const varifyUser = (
+export const verifyUser = (
   req: any,
   res: express.Response,
   next: () => void

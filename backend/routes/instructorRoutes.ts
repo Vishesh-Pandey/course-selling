@@ -2,7 +2,7 @@ import express from "express";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { varifyUser } from "./middleware";
+import { verifyUser } from "./middleware";
 
 const prisma = new PrismaClient();
 
@@ -108,21 +108,21 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.post("/createCourse", async (req, res) => {
-  varifyUser(req, res, () => {
-    console.log("User varified");
-  });
+router.post("/createCourse",verifyUser, async (req: any, res) => {
+  // verifyUser(req, res, () => {
+  //   console.log("User varified");
+  // });
 
-  const { title, description, instructorId } = req.body;
+  const { title, description } = req.body;
   console.log("title", title);
   console.log("description", description);
-  console.log("instructorId", instructorId);
+  console.log("instructor id is : ", req.id);
   try {
     await prisma.course.create({
       data: {
         title: title,
         description: description,
-        instructorId: instructorId,
+        instructorId: req.id
       },
     });
     return res.send({
@@ -147,7 +147,7 @@ router.get("/courses", async (req: any, res) => {
   return res.send(courses);
 });
 
-router.get("/your-courses", varifyUser, async (req: any, res) => {
+router.get("/your-courses", verifyUser, async (req: any, res) => {
   console.log("instructor id is : ", req.id);
   const courses = await prisma.course.findMany({
     where: {
