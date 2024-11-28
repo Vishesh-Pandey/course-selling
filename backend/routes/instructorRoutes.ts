@@ -104,14 +104,16 @@ router.post("/login", async (req, res) => {
     return res.send({
       message: "Something went wrong",
       error: error,
-    });
+    }
   }
 });
 
-router.post("/createCourse",verifyUser, async (req: any, res) => {
+router.post("/createCourse", verifyUser, async (req: any, res) => {
   // verifyUser(req, res, () => {
   //   console.log("User varified");
   // });
+  console.log("Request to create course rec");
+  console.log("Request body is : ", req.body);
 
   const { title, description } = req.body;
   console.log("title", title);
@@ -122,7 +124,7 @@ router.post("/createCourse",verifyUser, async (req: any, res) => {
       data: {
         title: title,
         description: description,
-        instructorId: req.id
+        instructorId: req.id,
       },
     });
     return res.send({
