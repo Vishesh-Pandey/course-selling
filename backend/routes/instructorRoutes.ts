@@ -104,7 +104,7 @@ router.post("/login", async (req, res) => {
     return res.send({
       message: "Something went wrong",
       error: error,
-    }
+    });
   }
 });
 
@@ -157,6 +157,32 @@ router.get("/your-courses", verifyUser, async (req: any, res) => {
     },
   });
   return res.send(courses);
+});
+
+router.post("/createLesson", verifyUser, async (req: any, res) => {
+  console.log("Request to create course rec");
+  console.log("Request body is : ", req.body);
+
+  const { title, description, courseId, videoURL } = req.body;
+
+  try {
+    await prisma.lesson.create({
+      data: {
+        title: title,
+        description: description,
+        courseId: courseId,
+        content: videoURL,
+      },
+    });
+    return res.send({
+      message: "Lesson created successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.send({
+      message: "Internal server error",
+    });
+  }
 });
 
 export { router as instructorRouter };

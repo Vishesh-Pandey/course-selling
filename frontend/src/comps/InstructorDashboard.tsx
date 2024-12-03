@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+type Course = {
+  id: string;
+  title: string;
+  description: string;
+};
 
 function Dashboard() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [courses, setCourses] = useState([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [yourCourses, setYourCourses] = useState([]);
 
   function getCourses() {
@@ -70,6 +77,8 @@ function Dashboard() {
       });
   }
 
+  const navigate = useNavigate();
+
   return (
     <>
       <div>Dashboard</div>
@@ -102,8 +111,8 @@ function Dashboard() {
       <div>
         <div>
           <h1>Your Courses </h1>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            {yourCourses.map((course) => {
+          <div style={{ display: "flex" }}>
+            {yourCourses.map((course: Course) => {
               return (
                 <div
                   style={{
@@ -114,9 +123,22 @@ function Dashboard() {
                     margin: "10px",
                   }}
                 >
+                  <img
+                    width="100%"
+                    src="https://img.freepik.com/free-vector/maths-online-course-economics-university-department-internet-classes-accounting-lessons-bookkeeping-mathematics-textbooks-digital-archive_335657-3441.jpg?semt=ais_hybrid"
+                    alt=""
+                  />
+                  <h3>{course.id}</h3>
                   <h3>{course.title}</h3>
                   <p>{course.description}</p>
-                  <button> Edit </button>
+                  <button
+                    onClick={() => {
+                      console.log("Trying to navigate");
+                      navigate(`/instructor-course`, { state: course });
+                    }}
+                  >
+                    Edit
+                  </button>
                 </div>
               );
             })}
@@ -146,6 +168,12 @@ function Dashboard() {
                     borderRadius: "5px",
                   }}
                 >
+                  <img
+                    width="100%"
+                    src="https://img.freepik.com/free-vector/maths-online-course-economics-university-department-internet-classes-accounting-lessons-bookkeeping-mathematics-textbooks-digital-archive_335657-3441.jpg?semt=ais_hybrid"
+                    alt=""
+                  />
+
                   <h3>{course.title}</h3>
                   <p>{course.description}</p>
                   <button>Open</button>

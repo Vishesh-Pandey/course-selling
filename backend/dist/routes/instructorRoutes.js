@@ -114,6 +114,8 @@ router.post("/createCourse", middleware_1.verifyUser, (req, res) => __awaiter(vo
     // verifyUser(req, res, () => {
     //   console.log("User varified");
     // });
+    console.log("Request to create course rec");
+    console.log("Request body is : ", req.body);
     const { title, description } = req.body;
     console.log("title", title);
     console.log("description", description);
@@ -123,7 +125,7 @@ router.post("/createCourse", middleware_1.verifyUser, (req, res) => __awaiter(vo
             data: {
                 title: title,
                 description: description,
-                instructorId: req.id
+                instructorId: req.id,
             },
         });
         return res.send({
@@ -154,4 +156,28 @@ router.get("/your-courses", middleware_1.verifyUser, (req, res) => __awaiter(voi
         },
     });
     return res.send(courses);
+}));
+router.post("/createLesson", middleware_1.verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("Request to create course rec");
+    console.log("Request body is : ", req.body);
+    const { title, description, courseId, videoURL } = req.body;
+    try {
+        yield prisma.lesson.create({
+            data: {
+                title: title,
+                description: description,
+                courseId: courseId,
+                content: videoURL,
+            },
+        });
+        return res.send({
+            message: "Lesson created successfully",
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.send({
+            message: "Internal server error",
+        });
+    }
 }));
