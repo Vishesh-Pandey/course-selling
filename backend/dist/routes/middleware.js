@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyUser = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const verifyUser = (req, res, next) => {
+    console.log("Varifying request... insdie varifyUser middleware");
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
     if (token == null)
@@ -16,7 +17,9 @@ const verifyUser = (req, res, next) => {
             return res.sendStatus(403);
         }
         req.id = user.id;
+        console.log("User varified and calling next middleware");
         next();
     });
+    console.log("End of varify middleware");
 };
 exports.verifyUser = verifyUser;

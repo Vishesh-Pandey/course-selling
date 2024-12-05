@@ -157,17 +157,17 @@ router.get("/your-courses", middleware_1.verifyUser, (req, res) => __awaiter(voi
     });
     return res.send(courses);
 }));
-router.post("/createLesson", middleware_1.verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/createLesson", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("Request to create course rec");
     console.log("Request body is : ", req.body);
-    const { title, description, courseId, videoURL } = req.body;
+    const { title, description, courseId, content } = req.body;
     try {
         yield prisma.lesson.create({
             data: {
                 title: title,
                 description: description,
                 courseId: courseId,
-                content: videoURL,
+                content: content,
             },
         });
         return res.send({
@@ -178,6 +178,22 @@ router.post("/createLesson", middleware_1.verifyUser, (req, res) => __awaiter(vo
         console.log(error);
         return res.send({
             message: "Internal server error",
+        });
+    }
+}));
+router.get("/lessons", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("course id is : ", req.query.id);
+    try {
+        const lessons = yield prisma.lesson.findMany({
+            where: {
+                courseId: req.id,
+            },
+        });
+        return res.send(lessons);
+    }
+    catch (error) {
+        return res.send({
+            msg: "Something went wrong",
         });
     }
 }));

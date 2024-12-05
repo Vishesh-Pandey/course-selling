@@ -5,12 +5,21 @@ function Landing() {
   return (
     <div>
       <h1>Welcome</h1>
-      <Link to="/user-signup">
-        <button>user</button>
-      </Link>
-      <Link to="/instructor-signup">
-        <button>instructor</button>
-      </Link>
+      <div>
+        <Link to="/user-signup">
+          <button>User Signup</button>
+        </Link>
+        <Link to="/instructor-signup">
+          <button>Instructor Signup</button>
+        </Link>
+        <Link to="/instructor-login">
+          <button>instructor Login</button>
+        </Link>
+        <Link to="/user-login">
+          <button>user Login</button>
+        </Link>
+      </div>
+      <div>This is a course selling website</div>
     </div>
   );
 }

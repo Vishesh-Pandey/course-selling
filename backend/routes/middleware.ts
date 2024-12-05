@@ -6,6 +6,7 @@ export const verifyUser = (
   res: express.Response,
   next: () => void
 ) => {
+  console.log("Varifying request... insdie varifyUser middleware");
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
   if (token == null) return res.sendStatus(401);
@@ -15,6 +16,8 @@ export const verifyUser = (
       return res.sendStatus(403);
     }
     req.id = user.id;
+    console.log("User varified and calling next middleware");
     next();
   });
+  console.log("End of varify middleware");
 };
