@@ -20,12 +20,21 @@ export const InstructorCourse = () => {
   const { id, title, description } = location.state || {};
 
   const addNewLessonToCourse = async () => {
-    axios.post("http://localhost:8000/instructor/createLesson", {
-      courseId: id,
-      title: id,
-      description: id,
-      content: id,
-    });
+    await axios.post(
+      "http://localhost:8000/instructor/createLesson",
+      {
+        courseId: id,
+        title: lessonTitle,
+        description: lessonDescription,
+        content: lessonVideoUrl,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    getExistingLessons();
   };
 
   const getExistingLessons = async () => {
@@ -36,13 +45,24 @@ export const InstructorCourse = () => {
     console.log(response.data);
   };
 
+  const deleteLesson = async (lessonId: string) => {
+    await axios.delete(
+      `http://localhost:8000/instructor/deletelesson?lessonId=${lessonId}&courseId=${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    getExistingLessons();
+  };
+
   useEffect(() => {
     getExistingLessons();
   }, []);
 
   return (
     <div>
-      <h1>{id}</h1>
       <h1>{title}</h1>
       <p>{description}</p>
       <div>
@@ -68,7 +88,7 @@ export const InstructorCourse = () => {
       </div>
       <h1>Lessons of this course</h1>
       <div style={{ display: "flex", flexWrap: "wrap" }}>
-        {existingLessons.map((course: Course) => {
+        {existingLessons.map((lesson: Course) => {
           return (
             <div
               style={{
@@ -84,16 +104,15 @@ export const InstructorCourse = () => {
                 src="https://img.freepik.com/free-vector/maths-online-course-economics-university-department-internet-classes-accounting-lessons-bookkeeping-mathematics-textbooks-digital-archive_335657-3441.jpg?semt=ais_hybrid"
                 alt=""
               />
-              <p>{course.id}</p>
-              <h3>{course.title}</h3>
-              <p>{course.description}</p>
+              <p>{lesson.id}</p>
+              <h3>{lesson.title}</h3>
+              <p>{lesson.description}</p>
               <button
                 onClick={() => {
-                  console.log("Trying to navigate");
-                  navigate(`/instructor-course`, { state: course });
+                  deleteLesson(lesson.id);
                 }}
               >
-                Edit
+                Delete
               </button>
             </div>
           );

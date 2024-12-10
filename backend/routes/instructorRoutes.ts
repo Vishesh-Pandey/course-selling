@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { verifyUser } from "./middleware";
+import { verify } from "crypto";
 
 const prisma = new PrismaClient();
 
@@ -159,13 +160,29 @@ router.get("/your-courses", verifyUser, async (req: any, res) => {
   return res.send(courses);
 });
 
-router.post("/createLesson", async (req: any, res) => {
+router.post("/createLesson", verifyUser, async (req: any, res) => {
   console.log("Request to create course rec");
   console.log("Request body is : ", req.body);
 
   const { title, description, courseId, content } = req.body;
 
   try {
+    // verify if course belongs to same instructor who is making the request
+
+    const course = await prisma.course.findUnique({
+      where: {
+        id: courseId,
+      },
+    });
+
+    if (course !== null) {
+      if (course.instructorId !== req.id) {
+        return res.send({
+          message: "You are not authorized to create a lesson for this course",
+        });
+      }
+    }
+
     await prisma.lesson.create({
       data: {
         title: title,
@@ -199,6 +216,42 @@ router.get("/lessons", async (req: any, res) => {
   } catch (error) {
     return res.send({
       msg: "Something went wrong",
+    });
+  }
+});
+
+router.delete("/deletelesson", verifyUser, async (req: any, res) => {
+  const { lessonId, courseId } = req.query;
+  console.log("id is : ", lessonId, courseId);
+  try {
+    const courseRow = await prisma.course.findUnique({
+      where: {
+        id: courseId,
+      },
+    });
+
+    if (courseRow !== null) {
+      if (courseRow.instructorId !== req.id) {
+        return res.send({
+          message: "You are not authorized to delete this lesson",
+        });
+      }
+    }
+
+    await prisma.lesson.delete({
+      where: {
+        id: lessonId,
+        courseId: courseId,
+      },
+    });
+
+    return res.send({
+      message: "Lesson deleted successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.send({
+      message: "Internal server error",
     });
   }
 });

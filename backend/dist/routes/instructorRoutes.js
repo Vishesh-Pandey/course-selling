@@ -197,3 +197,36 @@ router.get("/lessons", (req, res) => __awaiter(void 0, void 0, void 0, function*
         });
     }
 }));
+router.delete("/deletelesson", middleware_1.verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { lessonId, courseId } = req.query;
+    console.log("id is : ", lessonId, courseId);
+    try {
+        const courseRow = yield prisma.course.findUnique({
+            where: {
+                id: courseId,
+            },
+        });
+        if (courseRow !== null) {
+            if (courseRow.instructorId !== req.id) {
+                return res.send({
+                    message: "You are not authorized to delete this lesson",
+                });
+            }
+        }
+        yield prisma.lesson.delete({
+            where: {
+                id: lessonId,
+                courseId: courseId,
+            },
+        });
+        return res.send({
+            message: "Lesson deleted successfully",
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.send({
+            message: "Internal server error",
+        });
+    }
+}));
