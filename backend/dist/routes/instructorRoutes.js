@@ -18,6 +18,7 @@ const client_1 = require("@prisma/client");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const middleware_1 = require("./middleware");
+const instructorController_1 = require("../controllers/instructorController");
 const prisma = new client_1.PrismaClient();
 const router = express_1.default.Router();
 exports.instructorRouter = router;
@@ -26,45 +27,7 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         msg: "working",
     });
 }));
-router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { name, email, password } = req.body;
-        const salt = yield bcrypt_1.default.genSalt(12);
-        const hashedPassword = yield bcrypt_1.default.hash(password, salt);
-        yield prisma.instructor.create({
-            data: {
-                name: name,
-                email: email,
-                password: hashedPassword,
-            },
-        });
-        // fetch user id from the database
-        const user = yield prisma.instructor.findUnique({
-            where: {
-                email: email,
-            },
-        });
-        // create token
-        if (user !== null) {
-            const token = jsonwebtoken_1.default.sign({ email, id: user.id }, "secret_signature");
-            return res.send({
-                message: "User created successfully",
-                token: token,
-            });
-        }
-        else {
-            return res.status(500).send({
-                message: "Something went wrong",
-            });
-        }
-    }
-    catch (error) {
-        return res.json({
-            msg: "Something went wrong",
-            error: error,
-        });
-    }
-}));
+router.post("/signup", instructorController_1.signup);
 router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, password } = req.body;
@@ -157,11 +120,24 @@ router.get("/your-courses", middleware_1.verifyUser, (req, res) => __awaiter(voi
     });
     return res.send(courses);
 }));
-router.post("/createLesson", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/createLesson", middleware_1.verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("Request to create course rec");
     console.log("Request body is : ", req.body);
     const { title, description, courseId, content } = req.body;
     try {
+        // verify if course belongs to same instructor who is making the request
+        const course = yield prisma.course.findUnique({
+            where: {
+                id: courseId,
+            },
+        });
+        if (course !== null) {
+            if (course.instructorId !== req.id) {
+                return res.send({
+                    message: "You are not authorized to create a lesson for this course",
+                });
+            }
+        }
         yield prisma.lesson.create({
             data: {
                 title: title,

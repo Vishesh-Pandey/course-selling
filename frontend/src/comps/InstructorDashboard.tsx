@@ -69,6 +69,7 @@ function Dashboard() {
       .then((data) => {
         console.log("Response is ", data);
         console.log(data);
+        getYourCourses();
       })
 
       .catch((error) => {
