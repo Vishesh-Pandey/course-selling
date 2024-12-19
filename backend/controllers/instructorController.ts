@@ -1,103 +1,130 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
-import { router } from "../routes/instructorRoutes";
-import { verifyUser } from "../middleware/authMiddleware";
+
 // import { verifyUser } from "./middleware";
+
+type RequestWithId = express.Request & {
+  id: string;
+};
 
 const prisma = new PrismaClient();
 
-export const signup = async (req: express.Request, res: express.Response) => {
+export const createCourse = async (req: any, res: express.Response) => {
+  // verifyUser(req, res, () => {
+  //   console.log("User varified");
+  // });
+  console.log("Request to create course rec");
+  console.log("Request body is : ", req.body);
+
+  const { title, description } = req.body;
+  console.log("title", title);
+  console.log("description", description);
+  console.log("instructor id is : ", req.id);
   try {
-    const { name, email, password } = req.body;
-    const salt = await bcrypt.genSalt(12);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    await prisma.instructor.create({
+    await prisma.course.create({
       data: {
-        name: name,
-        email: email,
-        password: hashedPassword,
+        title: title,
+        description: description,
+        instructorId: req.id,
       },
     });
-
-    // fetch user id from the database
-
-    const user = await prisma.instructor.findUnique({
-      where: {
-        email: email,
-      },
+    return res.send({
+      message: "Course created successfully",
     });
-
-    // create token
-
-    if (user !== null) {
-      const token = jwt.sign({ email, id: user.id }, "secret_signature");
-      return res.send({
-        message: "User created successfully",
-        token: token,
-      });
-    } else {
-      return res.status(500).send({
-        message: "Something went wrong",
-      });
-    }
   } catch (error) {
-    return res.json({
-      msg: "Something went wrong",
-      error: error,
+    console.log(error);
+    return res.send({
+      message: "Internal server error",
+    });
+  }
+
+  // check if password is correct
+};
+
+export const createLesson = async (req: any, res: any) => {
+  console.log("Request to create course rec");
+  console.log("Request body is : ", req.body);
+
+  const { title, description, courseId, content } = req.body;
+
+  try {
+    // verify if course belongs to same instructor who is making the request
+
+    const course = await prisma.course.findUnique({
+      where: {
+        id: courseId,
+      },
+    });
+
+    if (course !== null) {
+      if (course.instructorId !== req.id) {
+        return res.send({
+          message: "You are not authorized to create a lesson for this course",
+        });
+      }
+    }
+
+    await prisma.lesson.create({
+      data: {
+        title: title,
+        description: description,
+        courseId: courseId,
+        content: content,
+      },
+    });
+    return res.send({
+      message: "Lesson created successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.send({
+      message: "Internal server error",
     });
   }
 };
 
-export const login = async (req: express.Request, res: express.Response) => {
+export const deleteLesson = async (req: any, res: any) => {
+  const { lessonId, courseId } = req.query;
+  console.log("id is : ", lessonId, courseId);
   try {
-    const { email, password } = req.body;
-    console.log("Given email and password :", { email, password });
-    // check if user exists
-    const user = await prisma.instructor.findUnique({
+    const courseRow = await prisma.course.findUnique({
       where: {
-        email: email,
+        id: courseId,
       },
     });
 
-    console.log("User detected : ", user);
-
-    if (!user) {
-      return res.status(400).send({
-        message: "Invalid email or password",
-      });
+    if (courseRow !== null) {
+      if (courseRow.instructorId !== req.id) {
+        return res.send({
+          message: "You are not authorized to delete this lesson",
+        });
+      }
     }
 
-    // check if password is correct
+    await prisma.lesson.delete({
+      where: {
+        id: lessonId,
+        courseId: courseId,
+      },
+    });
 
-    const validPassword = await bcrypt.compare(password, user.password);
-
-    if (!validPassword) {
-      return res.status(400).send({
-        message: "Invalid email or password",
-      });
-    }
-
-    // create token
-    if (user !== null) {
-      const token = jwt.sign({ email: email, id: user.id }, "secret_signature");
-
-      return res.send({
-        message: "Login successful",
-        token: token,
-      });
-    } else {
-      return res.send({
-        msg: "something went wrong ",
-        error: "user does not exist",
-      });
-    }
-  } catch (error) {
     return res.send({
-      message: "Something went wrong",
-      error: error,
+      message: "Lesson deleted successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.send({
+      message: "Internal server error",
     });
   }
+};
+
+export const yourCourses = async (req: any, res: any) => {
+  console.log("instructor id is : ", req.id);
+  const courses = await prisma.course.findMany({
+    where: {
+      instructorId: req.id,
+    },
+  });
+  return res.send(courses);
 };
