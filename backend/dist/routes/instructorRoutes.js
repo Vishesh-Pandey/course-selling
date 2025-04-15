@@ -25,38 +25,10 @@ exports.router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function
         msg: "working",
     });
 }));
-exports.router.post("/signup", instructorController_1.signup);
-exports.router.post("/login", instructorController_1.login);
-exports.router.post("/createCourse", authMiddleware_1.verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // verifyUser(req, res, () => {
-    //   console.log("User varified");
-    // });
-    console.log("Request to create course rec");
-    console.log("Request body is : ", req.body);
-    const { title, description } = req.body;
-    console.log("title", title);
-    console.log("description", description);
-    console.log("instructor id is : ", req.id);
-    try {
-        yield exports.prisma.course.create({
-            data: {
-                title: title,
-                description: description,
-                instructorId: req.id,
-            },
-        });
-        return res.send({
-            message: "Course created successfully",
-        });
-    }
-    catch (error) {
-        console.log(error);
-        return res.send({
-            message: "Internal server error",
-        });
-    }
-    // check if password is correct
-}));
+exports.router.get("/your-courses", authMiddleware_1.verifyUser, instructorController_1.yourCourses);
+exports.router.post("/createCourse", authMiddleware_1.verifyUser, instructorController_1.createCourse);
+exports.router.post("/createLesson", authMiddleware_1.verifyUser, instructorController_1.createLesson);
+exports.router.delete("/deletelesson", authMiddleware_1.verifyUser, instructorController_1.deleteLesson);
 exports.router.get("/courses", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const courses = yield exports.prisma.course.findMany({
         where: {
@@ -64,52 +36,6 @@ exports.router.get("/courses", (req, res) => __awaiter(void 0, void 0, void 0, f
         },
     });
     return res.send(courses);
-}));
-exports.router.get("/your-courses", authMiddleware_1.verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("instructor id is : ", req.id);
-    const courses = yield exports.prisma.course.findMany({
-        where: {
-            instructorId: req.id,
-        },
-    });
-    return res.send(courses);
-}));
-exports.router.post("/createLesson", authMiddleware_1.verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("Request to create course rec");
-    console.log("Request body is : ", req.body);
-    const { title, description, courseId, content } = req.body;
-    try {
-        // verify if course belongs to same instructor who is making the request
-        const course = yield exports.prisma.course.findUnique({
-            where: {
-                id: courseId,
-            },
-        });
-        if (course !== null) {
-            if (course.instructorId !== req.id) {
-                return res.send({
-                    message: "You are not authorized to create a lesson for this course",
-                });
-            }
-        }
-        yield exports.prisma.lesson.create({
-            data: {
-                title: title,
-                description: description,
-                courseId: courseId,
-                content: content,
-            },
-        });
-        return res.send({
-            message: "Lesson created successfully",
-        });
-    }
-    catch (error) {
-        console.log(error);
-        return res.send({
-            message: "Internal server error",
-        });
-    }
 }));
 exports.router.get("/lessons", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("course id is : ", req.query.id);
@@ -124,39 +50,6 @@ exports.router.get("/lessons", (req, res) => __awaiter(void 0, void 0, void 0, f
     catch (error) {
         return res.send({
             msg: "Something went wrong",
-        });
-    }
-}));
-exports.router.delete("/deletelesson", authMiddleware_1.verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { lessonId, courseId } = req.query;
-    console.log("id is : ", lessonId, courseId);
-    try {
-        const courseRow = yield exports.prisma.course.findUnique({
-            where: {
-                id: courseId,
-            },
-        });
-        if (courseRow !== null) {
-            if (courseRow.instructorId !== req.id) {
-                return res.send({
-                    message: "You are not authorized to delete this lesson",
-                });
-            }
-        }
-        yield exports.prisma.lesson.delete({
-            where: {
-                id: lessonId,
-                courseId: courseId,
-            },
-        });
-        return res.send({
-            message: "Lesson deleted successfully",
-        });
-    }
-    catch (error) {
-        console.log(error);
-        return res.send({
-            message: "Internal server error",
         });
     }
 }));

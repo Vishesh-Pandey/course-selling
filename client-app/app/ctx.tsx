@@ -1,8 +1,13 @@
 import { useContext, createContext, type PropsWithChildren } from "react";
 import { useStorageState } from "./useStorageState";
 
+type SignInParams = {
+  email: string;
+  password: string;
+};
+
 const AuthContext = createContext<{
-  signIn: () => void;
+  signIn: (email: string, password: string) => void;
   signOut: () => void;
   session?: string | null;
   isLoading: boolean;
@@ -31,19 +36,20 @@ export function SessionProvider({ children }: PropsWithChildren) {
   return (
     <AuthContext.Provider
       value={{
-        signIn: async () => {
+        signIn: async (email, password) => {
           // Perform sign-in logic here
-          const response = await fetch("/api/session-link-to-sign-in", {
+          const response = await fetch("http://localhost:8000/auth/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              username: "username",
-              password: "password",
+              email: email,
+              password: password,
             }),
           });
           const data = await response.json();
+          console.log("THE DATA WE GOT IN RETURN IS : ", data);
+          console.log("THE TOKEN WE GOT IN RETURN IS : ", data.token);
           setSession(data.token);
-          setSession("xxx");
         },
         signOut: () => {
           setSession(null);

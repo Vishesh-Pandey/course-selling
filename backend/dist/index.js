@@ -8,7 +8,7 @@ const routes_1 = require("./routes");
 const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "http://localhost:8081"],
     methods: ["GET", "POST", "PUT", "DELETE"],
 })); // for parsing application/json
 app.use(express_1.default.json()); // for parsing application/json
