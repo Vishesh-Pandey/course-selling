@@ -7,11 +7,31 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import SignIn from "./sign-in";
+import { useSession } from "./ctx";
+import HomeScreen from "./(tabs)";
 
 export default function SignInIndex() {
+  const { isLoading, session } = useSession();
+
+  if (isLoading) {
+    return (
+      <ThemedView>
+        <Text> Loading .. </Text>
+      </ThemedView>
+    );
+  }
+
+  if (!session) {
+    return (
+      <ThemedView>
+        <SignIn />
+      </ThemedView>
+    );
+  }
+
   return (
     <ThemedView>
-      <SignIn />
+      <HomeScreen />
     </ThemedView>
   );
 }
