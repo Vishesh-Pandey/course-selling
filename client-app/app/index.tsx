@@ -9,6 +9,8 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import SignIn from "./sign-in";
 import { useSession } from "./ctx";
 import HomeScreen from "./(tabs)";
+import TabTwoScreen from "./(tabs)/explore";
+import { Redirect } from "expo-router";
 
 export default function SignInIndex() {
   const { isLoading, session } = useSession();
@@ -22,18 +24,10 @@ export default function SignInIndex() {
   }
 
   if (!session) {
-    return (
-      <ThemedView>
-        <SignIn />
-      </ThemedView>
-    );
+    return <Redirect href="/sign-in" />;
   }
 
-  return (
-    <ThemedView>
-      <HomeScreen />
-    </ThemedView>
-  );
+  return <Redirect href="/auth/index" />;
 }
 
 const styles = StyleSheet.create({
