@@ -1,19 +1,15 @@
-import { StyleSheet, Image, Platform, View, Text } from "react-native";
-
-import { Collapsible } from "@/components/Collapsible";
-import { ExternalLink } from "@/components/ExternalLink";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { ThemedText } from "@/components/ThemedText";
+import { StyleSheet, Text } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import SignIn from "./sign-in";
 import { useSession } from "./ctx";
-import HomeScreen from "./(tabs)";
-import TabTwoScreen from "./(tabs)/explore";
 import { Redirect } from "expo-router";
+import { useEffect } from "react";
 
 export default function SignInIndex() {
   const { isLoading, session } = useSession();
+
+  useEffect(() => {
+    console.log("Sign in token changed");
+  }, [session]);
 
   if (isLoading) {
     return (
@@ -27,7 +23,7 @@ export default function SignInIndex() {
     return <Redirect href="/sign-in" />;
   }
 
-  return <Redirect href="/auth/index" />;
+  return <Redirect href="/auth" />;
 }
 
 const styles = StyleSheet.create({

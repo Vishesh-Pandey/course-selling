@@ -1,4 +1,11 @@
-import { StyleSheet, Image, Platform } from "react-native";
+import {
+  StyleSheet,
+  Image,
+  Platform,
+  Button,
+  View,
+  ScrollView,
+} from "react-native";
 
 import { Collapsible } from "@/components/Collapsible";
 import { ExternalLink } from "@/components/ExternalLink";
@@ -6,20 +13,41 @@ import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useEffect, useState } from "react";
+
+type Course = {
+  id: string;
+  title: string;
+  description: string;
+  instructorId: string;
+};
 
 export default function TabTwoScreen() {
+  const [courses, setCourses] = useState<Course[]>([]);
+
+  async function getCourses() {
+    const response = await fetch("http://localhost:8000/instructor/courses", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await response.json();
+    setCourses(data);
+  }
+
+  useEffect(() => {
+    getCourses();
+  }, []);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }
-    >
+    <ScrollView>
+      {courses.map((course) => (
+        <ThemedView key={course.id} style={{ margin: 10, padding: 10 }}>
+          <ThemedText type="subtitle">{course.title}</ThemedText>
+          <ThemedText>{course.description}</ThemedText>
+          <Button title="Go to course" onPress={() => {}} />
+        </ThemedView>
+      ))}
+
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Explore</ThemedText>
       </ThemedView>
@@ -111,7 +139,7 @@ export default function TabTwoScreen() {
           ),
         })}
       </Collapsible>
-    </ParallaxScrollView>
+    </ScrollView>
   );
 }
 

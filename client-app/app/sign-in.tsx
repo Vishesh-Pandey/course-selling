@@ -1,8 +1,9 @@
 import { StyleSheet, View, TextInput, TouchableOpacity } from "react-native";
 
 import { ThemedText } from "@/components/ThemedText";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "./ctx";
+import { Redirect } from "expo-router";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
